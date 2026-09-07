@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Be My Valentine 💘</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1, #ff9a9e);
+      background-size: 400% 400%;
+      animation: bgMove 15s ease infinite;
+      font-family: "Poppins", sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Layer 1: Floating particles background */
+    .layer-1 {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      animation: floatParticle 10s linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(110vh) translateX(0) scale(0); opacity: 0; }
+      10% { opacity: 0.4; }
+      90% { opacity: 0.4; }
+      100% { transform: translateY(-10vh) translateX(var(--tx)) scale(1); opacity: 0; }
+    }
+
+    /* Layer 2: Floating hearts */
+    .layer-2 {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+    .heart {
+      position: absolute;
+      font-size: 24px;
+      animation: floatHeart 12s linear infinite;
+      opacity: 0;
+      filter: drop-shadow(0 4px 12px rgba(255,77,109,0.3));
+    }
+    @keyframes floatHeart {
+      0% { transform: translateY(110vh) rotate(0deg) scale(0.3); opacity: 0; }
+      15% { opacity: 0.7; }
+      85% { opacity: 0.7; }
+      100% { transform: translateY(-10vh) rotate(720deg) scale(1.2); opacity: 0; }
+    }
+
+    /* Layer 3: Ambient glow orbs */
+    .layer-3 {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: pulseOrb 6s ease-in-out infinite;
+    }
+    @keyframes pulseOrb {
+      0%,100% { transform: scale(1); opacity: 0.15; }
+      50% { transform: scale(1.5); opacity: 0.3; }
+    }
+
+    /* Layer 4: Main card container */
+    .layer-4 {
+      position: relative;
+      z-index: 10;
+      perspective: 1000px;
+    }
+
+    /* Layer 5: Overlay effects (confetti, sparkles) */
+    .layer-5 {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Card */
+    .card {
+      width: min(92%, 420px);
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: 32px;
+      text-align: center;
+      box-shadow:
+        0 40px 100px rgba(0,0,0,0.2),
+        inset 0 0 0 1px rgba(255,255,255,0.5),
+        0 0 0 4px rgba(255,255,255,0.1);
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 35px;
+      background: linear-gradient(120deg, #ff4d6d, #ff9a9e, #fbc2eb, #a18cd1);
+      z-index: -1;
+      filter: blur(25px);
+      opacity: 0.6;
+      animation: glowRotate 8s linear infinite;
+    }
+    @keyframes glowRotate {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* Screen states */
+    .screen {
+      display: none;
+      padding: 45px 35px 50px;
+      animation: screenIn 0.6s ease;
+    }
+    .screen.active { display: block; }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes screenOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-20px) scale(0.98); }
+    }
+
+    .emoji {
+      font-size: 72px;
+      margin-bottom: 16px;
+      animation: heartbeat 2s infinite;
+      display: inline-block;
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      20% { transform: scale(1.1); }
+      40% { transform: scale(1); }
+      60% { transform: scale(1.15); }
+      80% { transform: scale(1); }
+    }
+
+    h2 {
+      font-family: "Playfair Display", serif;
+      font-size: 28px;
+      color: #4a1c2f;
+      margin-bottom: 12px;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+    .subtitle {
+      color: #8b5a6b;
+      font-size: 15px;
+      margin-bottom: 30px;
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* Question cards */
+    .question-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,240,245,0.9));
+      border-radius: 20px;
+      padding: 24px;
+      margin: 20px 0;
+      text-align: left;
+      box-shadow: 0 8px 30px rgba(255,77,109,0.1);
+      border: 1px solid rgba(255,154,158,0.3);
+      animation: slideUp 0.5s ease backwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .question-card:nth-child(1) { animation-delay: 0.1s; }
+    .question-card:nth-child(2) { animation-delay: 0.2s; }
+    .question-card:nth-child(3) { animation-delay: 0.3s; }
+    .question-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .question-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #ff4d6d;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-family: "Playfair Display", serif;
+      font-size: 18px;
+      color: #4a1c2f;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .answer-options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .answer-btn {
+      flex: 1;
+      min-width: 120px;
+      padding: 12px 20px;
+      border-radius: 30px;
+      border: 2px solid rgba(255,77,109,0.3);
+      background: rgba(255,255,255,0.7);
+      color: #6b3a4a;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: "Poppins", sans-serif;
+    }
+    .answer-btn:hover {
+      border-color: #ff4d6d;
+      background: rgba(255,77,109,0.1);
+      transform: translateY(-2px);
+    }
+    .answer-btn.selected {
+      background: linear-gradient(135deg, #ff4d6d, #ff7b8a);
+      border-color: #ff4d6d;
+      color: white;
+      box-shadow: 0 6px 20px rgba(255,77,109,0.4);
+    }
+
+    /* Navigation buttons */
+    .nav-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 16px 40px;
+      border-radius: 50px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      font-family: "Poppins", sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+    .btn:hover::before { transform: translateX(100%); }
+    .btn:active { transform: scale(0.95); }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff4d6d, #ff7b8a);
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(255,77,109,0.5); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.7);
+      color: #6b3a4a;
+      border: 2px solid rgba(255,77,109,0.3);
+    }
+    .btn-secondary:hover { background: rgba(255,77,109,0.1); border-color: #ff4d6d; transform: translateY(-3px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Progress indicator */
+    .progress-bar {
+      height: 4px;
+      background: rgba(255,154,158,0.3);
+      border-radius: 2px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4d6d, #ff9a9e, #fbc2eb);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+    .progress-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,154,158,0.4);
+      transition: all 0.3s ease;
+    }
+    .progress-dot.active {
+      background: #ff4d6d;
+      transform: scale(1.3);
+      box-shadow: 0 0 15px rgba(255,77,109,0.6);
+    }
+
+    /* Final screen */
+    .final-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+    .final-screen .emoji { font-size: 100px; animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.1); } }
+    .final-screen h2 { margin-bottom: 8px; font-size: 32px; }
+    .final-screen p { color: #6b3a4a; font-size: 17px; line-height: 1.7; max-width: 320px; }
+    .love-meter {
+      width: 100%;
+      max-width: 280px;
+      height: 12px;
+      background: rgba(255,154,158,0.3);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .love-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4d6d, #ff9a9e, #fbc2eb, #a18cd1);
+      background-size: 200% 100%;
+      border-radius: 6px;
+      width: 0%;
+      animation: fillLove 2s ease forwards, shimmer 2s linear infinite;
+    }
+    @keyframes fillLove { to { width: 100%; } }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .love-text { font-size: 14px; color: #8b5a6b; }
+
+    /* Sparkle */
+    .sparkle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #ffd700;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: sparkleAnim 1s ease-out forwards;
+    }
+    @keyframes sparkleAnim {
+      0% { transform: scale(0) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+      100% { transform: scale(0) rotate(360deg); opacity: 0; }
+    }
+
+    /* Running No button */
+    .btn-no-running {
+      position: absolute !important;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Layer 1: Particles -->
+  <div class="layer-1" id="layer1"></div>
+  <!-- Layer 2: Hearts -->
+  <div class="layer-2" id="layer2"></div>
+  <!-- Layer 3: Glow Orbs -->
+  <div class="layer-3" id="layer3"></div>
+  <!-- Layer 4: Main Card -->
+  <div class="layer-4">
+    <div class="card" id="card">
+      <!-- Screen 1: Welcome -->
+      <div class="screen active" id="screen1">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-dots" id="progressDots"></div>
+        <div class="emoji">💘</div>
+        <h2>Hey there, cutie! 👋</h2>
+        <p class="subtitle">I have a few questions for you... and a surprise at the end. Ready?</p>
+        <div class="nav-buttons">
+          <button class="btn btn-primary" id="startBtn">Let's Go! 💖</button>
+        </div>
+      </div>
+
+      <!-- Screen 2: Question 1 -->
+      <div class="screen" id="screen2">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill2"></div></div>
+        <div class="progress-dots" id="progressDots2"></div>
+        <div class="emoji">💭</div>
+        <h2>Question 1 of 4</h2>
+        <div class="question-card">
+          <div class="question-label">Question 1</div>
+          <p class="question-text">What's your ideal Valentine's date?</p>
+          <div class="answer-options">
+            <button class="answer-btn" data-q="1" data-a="a">🍝 Cozy dinner at home</button>
+            <button class="answer-btn" data-q="1" data-a="b">🌅 Sunset picnic & wine</button>
+            <button class="answer-btn" data-q="1" data-a="c">🎢 Adventure day out</button>
+            <button class="answer-btn" data-q="1" data-a="d">🎬 Movie marathon & snacks</button>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" id="back1" disabled>Back</button>
+          <button class="btn btn-primary" id="next1" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Screen 3: Question 2 -->
+      <div class="screen" id="screen3">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill3"></div></div>
+        <div class="progress-dots" id="progressDots3"></div>
+        <div class="emoji">💌</div>
+        <h2>Question 2 of 4</h2>
+        <div class="question-card">
+          <div class="question-label">Question 2</div>
+          <p class="question-text">Which love language speaks to you most?</p>
+          <div class="answer-options">
+            <button class="answer-btn" data-q="2" data-a="a">💬 Words of affirmation</button>
+            <button class="answer-btn" data-q="2" data-a="b">🎁 Thoughtful gifts</button>
+            <button class="answer-btn" data-q="2" data-a="c">🤝 Quality time</button>
+            <button class="answer-btn" data-q="2" data-a="d">🤗 Physical touch</button>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" id="back2">← Back</button>
+          <button class="btn btn-primary" id="next2" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Screen 4: Question 3 -->
+      <div class="screen" id="screen4">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill4"></div></div>
+        <div class="progress-dots" id="progressDots4"></div>
+        <div class="emoji">🍫</div>
+        <h2>Question 3 of 4</h2>
+        <div class="question-card">
+          <div class="question-label">Question 3</div>
+          <p class="question-text">Pick your Valentine's treat:</p>
+          <div class="answer-options">
+            <button class="answer-btn" data-q="3" data-a="a">🍓 Chocolate-covered strawberries</button>
+            <button class="answer-btn" data-q="3" data-a="b">🧁 Heart-shaped cupcakes</button>
+            <button class="answer-btn" data-q="3" data-a="c">🍷 Wine & cheese board</button>
+            <button class="answer-btn" data-q="3" data-a="d">☕ Coffee & cinnamon rolls</button>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" id="back3">← Back</button>
+          <button class="btn btn-primary" id="next3" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Screen 5: Question 4 -->
+      <div class="screen" id="screen5">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill5"></div></div>
+        <div class="progress-dots" id="progressDots5"></div>
+        <div class="emoji">💕</div>
+        <h2>Final Question</h2>
+        <div class="question-card">
+          <div class="question-label">Question 4</div>
+          <p class="question-text">If I asked you to be my Valentine right now...</p>
+          <div class="answer-options">
+            <button class="answer-btn" data-q="4" data-a="yes">💖 YES! Absolutely!</button>
+            <button class="answer-btn btn-no-running" data-q="4" data-a="no" id="btnNo">😢 No way...</button>
+          </div>
+        </div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" id="back4">← Back</button>
+          <button class="btn btn-primary" id="next4" disabled>See Result ✨</button>
+        </div>
+      </div>
+
+      <!-- Screen 6: Final Result -->
+      <div class="screen final-screen" id="screen6">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill6" style="width: 100%"></div></div>
+        <div class="progress-dots" id="progressDots6"></div>
+        <div class="emoji" id="finalEmoji">💕</div>
+        <h2 id="finalTitle">Yay! You said yes! 💖</h2>
+        <p id="finalMessage">I promise to make every day feel like Valentine's Day. Let's make memories together! 💕</p>
+        <div class="love-meter"><div class="love-fill" id="loveFill"></div></div>
+        <p class="love-text" id="loveText">Love compatibility: Calculating... 💫</p>
+        <div class="nav-buttons">
+          <button class="btn btn-primary" id="restartBtn">Play Again 🔁</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Layer 5: Overlay -->
+  <div class="layer-5" id="layer5"></div>
+
+  <script>
+    // ========== LAYER 1: PARTICLES ==========
+    const layer1 = document.getElementById('layer1');
+    const particleColors = ['#ff4d6d', '#ff9a9e', '#fbc2eb', '#a18cd1', '#ffd700', '#fff'];
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 4 + Math.random() * 10;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = particleColors[Math.floor(Math.random() * particleColors.length)];
+      p.style.animationDuration = (8 + Math.random() * 10) + 's';
+      p.style.animationDelay = Math.random() * 10 + 's';
+      p.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+      p.style.opacity = 0.3 + Math.random() * 0.4;
+      layer1.appendChild(p);
+    }
+
+    // ========== LAYER 2: HEARTS ==========
+    const layer2 = document.getElementById('layer2');
+    const hearts = ['💖', '💕', '💗', '💓', '💘', '💝', '💟', '❤️', '🧡', '💛', '💚', '💙', '💜'];
+    for (let i = 0; i < 25; i++) {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.left = Math.random() * 100 + 'vw';
+      h.style.fontSize = (18 + Math.random() * 28) + 'px';
+      h.style.animationDelay = Math.random() * 12 + 's';
+      h.style.animationDuration = (10 + Math.random() * 8) + 's';
+      layer2.appendChild(h);
+    }
+
+    // ========== LAYER 3: GLOW ORBS ==========
+    const layer3 = document.getElementById('layer3');
+    const orbData = [
+      { top: '10%', left: '10%', size: '300px', color: '#ff4d6d', delay: '0s' },
+      { top: '60%', right: '5%', size: '250px', color: '#fbc2eb', delay: '2s' },
+      { bottom: '15%', left: '20%', size: '200px', color: '#a18cd1', delay: '4s' },
+    ];
+    orbData.forEach(d => {
+      const o = document.createElement('div');
+      o.className = 'orb';
+      Object.assign(o.style, d);
+      o.style.background = d.color;
+      o.style.animationDelay = d.delay;
+      layer3.appendChild(o);
+    });
+
+    // ========== LAYER 4 & 5: CARD LOGIC ==========
+    const card = document.getElementById('card');
+    const layer5 = document.getElementById('layer5');
+    const screens = ['screen1', 'screen2', 'screen3', 'screen4', 'screen5', 'screen6'].map(id => document.getElementById(id));
+    let currentScreen = 0;
+    const answers = { 1: null, 2: null, 3: null, 4: null };
+
+    // Progress dots helper
+    function updateProgress(screenIdx) {
+      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i <= screenIdx);
+      });
+      const fill = document.getElementById(`progressFill${screenIdx + 1}`) || document.getElementById('progressFill');
+      if (fill) fill.style.width = `${((screenIdx) / 5) * 100}%`;
+    }
+
+    function showScreen(idx) {
+      screens.forEach((s, i) => {
+        if (i === idx) {
+          s.classList.add('active');
+          s.style.animation = 'screenIn 0.5s ease';
+        } else {
+          s.classList.remove('active');
+        }
+      });
+      currentScreen = idx;
+      updateProgress(idx);
+    }
+
+    function createSparkles(x, y, count = 20) {
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = x + 'px';
+        s.style.top = y + 'px';
+        const angle = (Math.PI * 2 / count) * i;
+        const dist = 80 + Math.random() * 60;
+        s.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+        s.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+        layer5.appendChild(s);
+        setTimeout(() => s.remove(), 1000);
+      }
+    }
+
+    // Answer button handling
+    document.querySelectorAll('.answer-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = btn.dataset.q;
+        const a = btn.dataset.a;
+        document.querySelectorAll(`.answer-btn[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        answers[q] = a;
+        const nextBtn = document.getElementById(`next${q}`);
+        if (nextBtn) nextBtn.disabled = false;
+        if (q === '4' && a === 'yes') {
+          document.getElementById('next4').disabled = false;
+        }
+        createSparkles(btn.getBoundingClientRect().left - card.getBoundingClientRect().left + btn.offsetWidth/2,
+                       btn.getBoundingClientRect().top - card.getBoundingClientRect().top + btn.offsetHeight/2, 12);
+      });
+    });
+
+    // No button running away
+    const btnNo = document.getElementById('btnNo');
+    let noClicks = 0;
+    const noMessages = [
+      "Are you sure? 🥺",
+      "Please? 😢",
+      "I'll be sad... 😭",
+      "Just say yes! 🙏",
+      "Pretty please? 🥺",
+      "My heart can't take this 💔"
+    ];
+    btnNo.addEventListener('click', (e) => {
+      e.stopPropagation();
+      noClicks++;
+      if (noClicks < noMessages.length) btnNo.textContent = noMessages[noClicks];
+      if (noClicks >= 2) {
+        btnNo.classList.add('btn-no-running');
+        const rect = card.getBoundingClientRect();
+        const maxX = rect.width - btnNo.offsetWidth - 40;
+        const maxY = rect.height - btnNo.offsetHeight - 160;
+        const x = Math.max(20, Math.min(maxX, Math.random() * maxX));
+        const y = Math.max(140, Math.min(maxY, Math.random() * maxY));
+        btnNo.style.left = x + 'px';
+        btnNo.style.top = y + 'px';
+      }
+      if (noClicks >= 6) btnNo.style.display = 'none';
+    });
+
+    // Navigation
+    document.getElementById('startBtn').addEventListener('click', () => showScreen(1));
+    document.getElementById('back1').addEventListener('click', () => showScreen(0));
+    document.getElementById('back2').addEventListener('click', () => showScreen(1));
+    document.getElementById('back3').addEventListener('click', () => showScreen(2));
+    document.getElementById('back4').addEventListener('click', () => showScreen(3));
+
+    document.getElementById('next1').addEventListener('click', () => showScreen(2));
+    document.getElementById('next2').addEventListener('click', () => showScreen(3));
+    document.getElementById('next3').addEventListener('click', () => showScreen(4));
+
+    document.getElementById('next4').addEventListener('click', () => {
+      showScreen(5);
+      const saidYes = answers[4] === 'yes';
+      const finalEmoji = document.getElementById('finalEmoji');
+      const finalTitle = document.getElementById('finalTitle');
+      const finalMessage = document.getElementById('finalMessage');
+      const loveFill = document.getElementById('loveFill');
+      const loveText = document.getElementById('loveText');
+
+      if (saidYes) {
+        finalEmoji.textContent = '💕';
+        finalTitle.textContent = 'Yay! You said yes! 💖';
+        finalMessage.textContent = 'I promise to make every day feel like Valentine\'s Day. Let\'s make memories together! 💕';
+        loveFill.style.width = '100%';
+        setTimeout(() => loveText.textContent = 'Love compatibility: 100% 💖 Perfect match!', 2000);
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.5 }, colors: ['#ff4d6d', '#ff9a9e', '#fbc2eb', '#ffd700', '#fff', '#a18cd1'] });
+        setTimeout(() => confetti({ particleCount: 150, spread: 120, origin: { y: 0.6 }, colors: ['#ff4d6d', '#ff9a9e', '#fbc2eb'] }), 400);
+      } else {
+        finalEmoji.textContent = '💔';
+        finalTitle.textContent = 'Aww... maybe next time? 🥺';
+        finalMessage.textContent = 'No worries! Thanks for playing along. You\'re still awesome! ✨';
+        loveFill.style.width = '10%';
+        loveFill.style.background = '#ff9a9e';
+        setTimeout(() => loveText.textContent = 'Love compatibility: 10% 💔 But friendship: 100%! 🤝', 2000);
+      }
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      answers[1] = answers[2] = answers[3] = answers[4] = null;
+      document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('[id^="next"]').forEach(b => b.disabled = true);
+      btnNo.textContent = '😢 No way...';
+      btnNo.style.display = 'inline-block';
+      btnNo.classList.remove('btn-no-running');
+      btnNo.style.left = '';
+      btnNo.style.top = '';
+      noClicks = 0;
+      showScreen(0);
+    });
+
+    
+
+    // Click sparkles on card
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+      const rect = card.getBoundingClientRect();
+      createSparkles(e.clientX - rect.left, e.clientY - rect.top, 8);
+    });
+
+    // Initialize progress dots
+    function initProgressDots() {
+      for (let i = 0; i < 6; i++) {
+        document.querySelectorAll('.progress-dots').forEach(container => {
+          const dot = document.createElement('div');
+          dot.className = 'progress-dot';
+          if (i === 0) dot.classList.add('active');
+          container.appendChild(dot);
+        });
+      }
+    }
+    initProgressDots();
+    updateProgress(0);
+  </script>
+</body>
+</html>
